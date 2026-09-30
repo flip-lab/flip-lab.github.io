@@ -1156,12 +1156,27 @@ a {
 
 .modal-price {
   margin-top: 15px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   font-family: "Inter", sans-serif;
   font-size: 20px;
 }
 
 .modal-add {
-  width: 100%;
+  width: auto;
   flex-shrink: 0;
+  padding: 14px 18px;
+}
+
+/* PRICE + ADD TO BAG ROW */
+.modal-price {
+  margin-top: 15px;
+}
+
+.modal-price,
+.modal-add {
+  align-self: center;
+}
+
+.modal-info {
+  position: relative;
 }
