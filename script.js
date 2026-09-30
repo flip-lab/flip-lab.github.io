@@ -556,16 +556,20 @@ function openProduct(id) {
 
         </div>
 
-        <div class="modal-price">
-          ${formatPrice(product.price)}
-        </div>
+        <div class="modal-purchase">
 
-        <button
-          class="modal-add"
-          data-add-id="${product.id}"
-        >
-          Add to Bag
-        </button>
+          <div class="modal-price">
+            ${formatPrice(product.price)}
+          </div>
+
+          <button
+            class="modal-add"
+            data-add-id="${product.id}"
+          >
+            Add to Bag
+          </button>
+
+        </div>
 
       </div>
 
