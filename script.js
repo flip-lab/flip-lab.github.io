@@ -593,6 +593,7 @@ function closeModal() {
    CHECKOUT
 ========================================= */
 
+```js
 function checkout() {
 
   if (!cart.length) {
@@ -646,12 +647,12 @@ Thank you!
     .then(() => {
 
       showToast(
-        "Order copied. Opening Messenger..."
+        "Order copied. Paste it into Messenger to send your request."
       );
 
       setTimeout(() => {
         window.open(CONTACT.messenger, "_blank");
-      }, 500);
+      }, 1000);
 
     })
     .catch(() => {
@@ -664,6 +665,8 @@ Thank you!
 
     });
 }
+```
+
 
 
 /* =========================================
