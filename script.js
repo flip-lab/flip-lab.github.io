@@ -9,7 +9,7 @@
 ========================================= */
 
 const CONTACT = {
-  messenger: "https://m.me/YOURPAGE",
+  messenger: "https://m.me/61594702000948",
   whatsapp: ""
 };
 
