@@ -638,40 +638,7 @@ Thank you!
 
 
   /*
-    WhatsApp takes priority if configured.
-  */
-
-  if (CONTACT.whatsapp) {
-
-    const phone = CONTACT.whatsapp.replace(/\D/g, "");
-
-    const url =
-      `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-
-    window.open(url, "_blank");
-
-    return;
-  }
-
-
-  /*
-    Messenger fallback.
-  */
-
-  if (
-    CONTACT.messenger &&
-    !CONTACT.messenger.includes("YOURPAGE")
-  ) {
-
-    window.open(CONTACT.messenger, "_blank");
-
-    return;
-  }
-
-
-  /*
-    If no contact method has been configured,
-    copy the message so it can be pasted manually.
+    Copy the prepared order message.
   */
 
   navigator.clipboard
@@ -679,14 +646,20 @@ Thank you!
     .then(() => {
 
       showToast(
-        "Order message copied. Add your Messenger or WhatsApp link."
+        "Order copied. Opening Messenger..."
       );
+
+      setTimeout(() => {
+        window.open(CONTACT.messenger, "_blank");
+      }, 500);
 
     })
     .catch(() => {
 
+      window.open(CONTACT.messenger, "_blank");
+
       showToast(
-        "Add your Messenger or WhatsApp link in script.js."
+        "Messenger opened. Please copy your order from the bag."
       );
 
     });
