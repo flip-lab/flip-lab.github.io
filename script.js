@@ -593,7 +593,6 @@ function closeModal() {
    CHECKOUT
 ========================================= */
 
-```js
 function checkout() {
 
   if (!cart.length) {
