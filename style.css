@@ -1114,36 +1114,54 @@ a {
   /* MOBILE PRODUCT MODAL */
 
 .product-modal {
-  max-height: 90vh;
+  width: calc(100% - 24px);
+  max-height: 92vh;
 }
 
 .modal-product {
   grid-template-columns: 1fr;
-  height: 90vh;
-  max-height: 90vh;
-  overflow: hidden;
+  height: auto;
+  max-height: 92vh;
+  overflow-y: auto;
 }
 
 .modal-image {
-  height: 300px;
-  min-height: 300px;
+  height: 220px;
+  min-height: 220px;
   flex-shrink: 0;
 }
 
 .modal-info {
-  padding: 35px 25px;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  padding: 25px 22px 22px;
+  overflow: visible;
+}
+
+.modal-info h2 {
+  margin: 10px 0;
+  font-size: 36px;
+}
+
+.modal-description {
+  margin: 12px 0 20px;
+  font-size: 13px;
+}
+
+.modal-specs {
+  margin-bottom: 20px;
+}
+
+.modal-spec {
+  padding: 8px 0;
 }
 
 .modal-price {
-  margin-top: 30px;
-  margin-bottom: 15px;
+  margin-top: 15px;
+  margin-bottom: 12px;
   font-family: "Inter", sans-serif;
   font-size: 20px;
 }
 
 .modal-add {
+  width: 100%;
   flex-shrink: 0;
 }
