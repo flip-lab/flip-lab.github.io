@@ -805,6 +805,27 @@ a {
 
   font-size: 10px;
   text-align: center;
+  .checkout-instruction {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+
+.checkout-instruction strong {
+  display: block;
+  margin-bottom: 5px;
+
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.checkout-instruction p {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
 }
 
 /* =========================
