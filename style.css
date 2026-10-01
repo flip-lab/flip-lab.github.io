@@ -696,6 +696,8 @@ a {
   letter-spacing: -0.04em;
 }
 
+/* CART CLOSE */
+
 .close-button,
 .modal-close {
   border: 0;
@@ -705,12 +707,17 @@ a {
   line-height: 1;
 }
 
+/* CART ITEMS
+   No internal scrolling.
+   The drawer presents the whole bag as one view.
+*/
+
 .cart-items {
-  flex: 1;
+  padding: 20px 25px 0;
 
-  overflow-y: auto;
+  flex: 0 0 auto;
 
-  padding: 20px;
+  overflow: visible;
 }
 
 .cart-item {
@@ -722,6 +729,10 @@ a {
   margin-bottom: 18px;
 
   border-bottom: 1px solid var(--line);
+}
+
+.cart-item:last-child {
+  margin-bottom: 0;
 }
 
 .cart-item-image {
@@ -766,66 +777,88 @@ a {
   text-transform: uppercase;
 }
 
+/* CART FOOTER */
+
 .cart-footer {
-  padding: 20px 25px 25px;
+  padding: 18px 25px 22px;
 
   border-top: 1px solid var(--line);
+
+  flex-shrink: 0;
 }
 
 /* FIX: Inter supports the ₱ symbol */
+
 .cart-total {
   display: flex;
   justify-content: space-between;
 
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 
   font-family: "Inter", sans-serif;
   font-size: 12px;
 }
 
+.cart-total strong {
+  font-weight: 700;
+}
+
+/* CHECKOUT INSTRUCTION */
+
+.checkout-instruction {
+  margin: 0 0 10px;
+
+  padding: 9px 11px;
+
+  border: 1px solid var(--line);
+
+  background: transparent;
+}
+
+.checkout-instruction strong {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: var(--muted);
+
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  font-weight: 500;
+
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.checkout-instruction p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+/* CHECKOUT BUTTON */
+
 .checkout-button {
+  display: block;
+
   width: 100%;
 
   border: 0;
 
-  padding: 15px;
+  padding: 13px 16px;
 
   background: var(--ink);
   color: var(--paper);
 
   font-family: "DM Mono", monospace;
   font-size: 10px;
+  font-weight: 500;
+
   text-transform: uppercase;
-}
-
-.checkout-note {
-  margin-top: 12px;
-
-  color: var(--muted);
-
-  font-size: 10px;
-  text-align: center;
-  .checkout-instruction {
-  margin-bottom: 14px;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  background: var(--card);
-}
-
-.checkout-instruction strong {
-  display: block;
-  margin-bottom: 5px;
-
-  font-family: "DM Mono", monospace;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.checkout-instruction p {
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.5;
+  letter-spacing: 0.04em;
 }
 
 /* =========================
@@ -921,6 +954,7 @@ a {
 }
 
 /* PRICE + ADD TO BAG */
+
 .modal-purchase {
   display: flex;
   align-items: center;
@@ -983,6 +1017,13 @@ a {
   transition: 0.25s ease;
 
   z-index: 100;
+}
+
+.toast.active {
+  opacity: 1;
+  visibility: visible;
+
+  transform: translate(-50%, 0);
 }
 
 .toast.active {
@@ -1143,6 +1184,75 @@ a {
   .footer-bottom span {
     display: block;
     margin-bottom: 8px;
+  }
+
+  /* =========================
+     MOBILE CART
+  ========================= */
+
+  .cart-header {
+    padding: 20px 25px;
+  }
+
+  .cart-header h2 {
+    font-size: 20px;
+  }
+
+  .cart-items {
+    padding: 14px 25px 0;
+  }
+
+  .cart-item {
+    grid-template-columns: 70px 1fr auto;
+    gap: 12px;
+
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+  }
+
+  .cart-item-image {
+    width: 70px;
+    height: 86px;
+  }
+
+  .cart-item-info h3 {
+    font-size: 13px;
+  }
+
+  .cart-item-info p {
+    font-size: 8px;
+  }
+
+  .remove-item {
+    font-size: 8px;
+  }
+
+  .cart-footer {
+    padding: 14px 25px 18px;
+  }
+
+  .cart-total {
+    margin-bottom: 9px;
+  }
+
+  .checkout-instruction {
+    margin-bottom: 9px;
+    padding: 8px 10px;
+  }
+
+  .checkout-instruction strong {
+    font-size: 8px;
+    margin-bottom: 3px;
+  }
+
+  .checkout-instruction p {
+    font-size: 9px;
+    line-height: 1.35;
+  }
+
+  .checkout-button {
+    padding: 13px 16px;
+    font-size: 10px;
   }
 
   /* MOBILE PRODUCT MODAL */
