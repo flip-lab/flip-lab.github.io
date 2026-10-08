@@ -116,7 +116,7 @@ const products = [
     color: "Washed Black",
     description:
       "Classic trucker shape with a naturally faded black denim finish.",
-    image: "",
+    image: "j-001.front.jpg",
     featured: false,
     added: "2026-08-12",
     available: true
