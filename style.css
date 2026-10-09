@@ -861,22 +861,20 @@ a {
   letter-spacing: 0.04em;
 }
 
-/* =========================
+
+/* =========================================
    PRODUCT MODAL
-========================= */
+========================================= */
 
 .product-modal {
+  position: fixed;
   width: min(900px, calc(100% - 30px));
-
+  max-width: 900px;
   max-height: 90vh;
-  overflow: hidden;
-
+  overflow: auto;
   border: 0;
-
   padding: 0;
-
   background: var(--paper);
-
   color: var(--ink);
 }
 
@@ -886,54 +884,103 @@ a {
 
 .modal-close {
   position: absolute;
-
   top: 15px;
   right: 20px;
-
   z-index: 5;
 }
 
 .modal-product {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  min-width: 0;
 }
 
 .modal-image {
-  min-height: 550px;
-
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  overflow: hidden;
   background: var(--card);
 }
 
-.modal-image img {
+.modal-image #modalMainImage {
+  display: block;
+  width: 100%;
+  height: min(60vh, 500px);
+  min-height: 260px;
+  object-fit: contain;
+  object-position: center;
+}
+
+.modal-image > .image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 20px;
+}
+
+.modal-gallery {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+  padding: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: var(--card);
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-thumbnail {
+  flex: 0 0 72px;
+  width: 72px;
+  height: 82px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  cursor: pointer;
+}
+
+.modal-thumbnail.active {
+  border: 2px solid var(--accent);
+}
+
+.modal-thumbnail img {
+  display: block;
   width: 100%;
   height: 100%;
-
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .modal-info {
-  padding: 60px 45px;
-
+  min-width: 0;
+  padding: 60px 35px 35px;
   display: flex;
   flex-direction: column;
-
-  min-height: 0;
-  overflow-y: auto;
+  overflow-wrap: anywhere;
 }
 
 .modal-info h2 {
   margin: 15px 0;
-
   font-size: clamp(32px, 5vw, 55px);
   line-height: 0.95;
   letter-spacing: -0.06em;
 }
 
+.modal-category {
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .modal-description {
   margin: 15px 0 30px;
-
   color: var(--muted);
   font-size: 14px;
+  line-height: 1.6;
 }
 
 .modal-specs {
@@ -944,13 +991,99 @@ a {
 .modal-spec {
   display: flex;
   justify-content: space-between;
-
+  gap: 12px;
   padding: 10px 0;
-
   border-bottom: 1px solid var(--line);
-
   font-family: "DM Mono", monospace;
   font-size: 10px;
+}
+
+.modal-purchase {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.modal-price {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.modal-add {
+  flex: 1;
+  border: 0;
+  padding: 15px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* MOBILE MODAL */
+
+@media (max-width: 650px) {
+  .product-modal {
+    width: calc(100% - 20px);
+    max-width: none;
+    max-height: 90vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .modal-product {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modal-image {
+    width: 100%;
+  }
+
+  .modal-image #modalMainImage {
+    width: 100%;
+    height: 42vh;
+    min-height: 220px;
+    max-height: 380px;
+  }
+
+  .modal-image > .image-placeholder {
+    min-height: 220px;
+  }
+
+  .modal-gallery {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .modal-thumbnail {
+    flex-basis: 65px;
+    width: 65px;
+    height: 72px;
+  }
+
+  .modal-info {
+    padding: 30px 24px;
+    overflow: visible;
+  }
+
+  .modal-info h2 {
+    font-size: clamp(32px, 9vw, 45px);
+  }
+
+  .modal-description {
+    margin-bottom: 22px;
+  }
+
+  .modal-specs {
+    margin-bottom: 22px;
+  }
 }
 
 /* PRICE + ADD TO BAG */
