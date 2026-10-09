@@ -22,18 +22,25 @@ const products = [
 
   {
     id: 1,
-    name: "Faded Utility Jacket",
-    category: "workwear",
-    price: 1450,
-    size: "Large",
-    condition: "Very Good",
-    year: "1990s–2000s",
-    color: "Washed Olive",
+    name: "J-001",
+    category: "windbreaker",
+    price: 1500,
+    size: "Medium",
+    condition: "Excellent",
+    color: "White",
+
     description:
-      "A worn-in utility jacket with a naturally faded finish and practical workwear construction.",
-    image: "",
+      "A breezy, packable zip-up jacket with a crisp white finish and lightweight windbreaker construction.",
+
+    images: [
+      "j-001.front.jpg",
+      "j-001.back.jpg",
+      "j-001.macro.jpg",
+      "j-001.measures.png"
+    ],
+
     featured: true,
-    added: "2026-09-01",
+    added: "2026-10-09",
     available: true
   },
 
@@ -44,11 +51,12 @@ const products = [
     price: 1650,
     size: "Medium",
     condition: "Excellent",
-    year: "2000s",
     color: "Indigo",
     description:
       "Classic denim construction with a clean silhouette and subtle signs of wear.",
-    image: "",
+
+    images: [],
+
     featured: true,
     added: "2026-09-03",
     available: true
@@ -61,11 +69,12 @@ const products = [
     price: 1850,
     size: "Large",
     condition: "Excellent",
-    year: "2000s",
     color: "Black",
     description:
       "Minimal black bomber with a compact silhouette and lightweight flight-jacket feel.",
-    image: "",
+
+    images: [],
+
     featured: true,
     added: "2026-09-05",
     available: true
@@ -78,11 +87,12 @@ const products = [
     price: 1250,
     size: "Medium",
     condition: "Very Good",
-    year: "1990s",
     color: "Stone",
     description:
       "Lightweight nylon shell with a practical outdoor character and relaxed fit.",
-    image: "",
+
+    images: [],
+
     featured: false,
     added: "2026-08-25",
     available: true
@@ -95,11 +105,12 @@ const products = [
     price: 1950,
     size: "XL",
     condition: "Good",
-    year: "1980s–1990s",
     color: "Natural",
     description:
       "Heavy canvas construction with visible character from years of use.",
-    image: "",
+
+    images: [],
+
     featured: false,
     added: "2026-08-18",
     available: true
@@ -112,11 +123,12 @@ const products = [
     price: 1550,
     size: "Medium",
     condition: "Good",
-    year: "1990s–2000s",
     color: "Washed Black",
     description:
       "Classic trucker shape with a naturally faded black denim finish.",
-    image: "j-001.front.jpg",
+
+    images: [],
+
     featured: false,
     added: "2026-08-12",
     available: true
@@ -160,35 +172,47 @@ const toast = document.getElementById("toast");
 ========================================= */
 
 function formatPrice(price) {
+
   return new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
     maximumFractionDigits: 0
   }).format(price);
+
 }
 
 
 function getProduct(id) {
-  return products.find(product => product.id === Number(id));
+
+  return products.find(
+    product => product.id === Number(id)
+  );
+
 }
 
 
 function saveCart() {
+
   localStorage.setItem(
     "flipCart",
     JSON.stringify(cart)
   );
+
 }
 
 
 function showToast(message) {
+
   toast.textContent = message;
 
   toast.classList.add("active");
 
   setTimeout(() => {
+
     toast.classList.remove("active");
+
   }, 2200);
+
 }
 
 
@@ -198,15 +222,23 @@ function showToast(message) {
 
 function productImage(product, className = "") {
 
-  if (product.image) {
+  const image =
+    product.images &&
+    product.images.length
+      ? product.images[0]
+      : "";
+
+  if (image) {
+
     return `
       <img
-        src="${product.image}"
+        src="${image}"
         alt="${product.name}"
         class="${className}"
         loading="lazy"
       />
     `;
+
   }
 
   return `
@@ -214,6 +246,7 @@ function productImage(product, className = "") {
       Photo coming soon
     </div>
   `;
+
 }
 
 
@@ -234,6 +267,7 @@ function getVisibleProducts() {
     }
 
     return product.category === activeFilter;
+
   });
 
 
@@ -274,6 +308,7 @@ function getVisibleProducts() {
 
 
   return visible;
+
 }
 
 
@@ -285,6 +320,7 @@ function renderProducts() {
 
   const visible = getVisibleProducts();
 
+
   if (!visible.length) {
 
     productGrid.innerHTML = `
@@ -294,6 +330,7 @@ function renderProducts() {
     `;
 
     return;
+
   }
 
 
@@ -320,6 +357,7 @@ function renderProducts() {
         <div class="product-info">
 
           <div>
+
             <div class="product-name">
               ${product.name}
             </div>
@@ -331,6 +369,7 @@ function renderProducts() {
               ·
               ${product.condition}
             </div>
+
           </div>
 
           <div class="product-price">
@@ -343,6 +382,7 @@ function renderProducts() {
     `;
 
   }).join("");
+
 }
 
 
@@ -366,6 +406,7 @@ function updateCart() {
     cartTotal.textContent = "₱0";
 
     return;
+
   }
 
 
@@ -376,9 +417,11 @@ function updateCart() {
 
     const product = getProduct(id);
 
+
     if (!product) {
       return "";
     }
+
 
     total += product.price;
 
@@ -416,6 +459,7 @@ function updateCart() {
 
 
   cartTotal.textContent = formatPrice(total);
+
 }
 
 
@@ -427,6 +471,7 @@ function addToCart(id) {
 
   const product = getProduct(id);
 
+
   if (!product || !product.available) {
     return;
   }
@@ -434,9 +479,12 @@ function addToCart(id) {
 
   if (cart.includes(product.id)) {
 
-    showToast("This piece is already in your bag.");
+    showToast(
+      "This piece is already in your bag."
+    );
 
     return;
+
   }
 
 
@@ -451,11 +499,14 @@ function addToCart(id) {
 
   updateCart();
 
-  showToast(`${product.name} added to your bag.`);
+  showToast(
+    `${product.name} added to your bag.`
+  );
 
   closeModal();
 
   openCart();
+
 }
 
 
@@ -472,6 +523,7 @@ function removeFromCart(id) {
   saveCart();
 
   updateCart();
+
 }
 
 
@@ -482,18 +534,22 @@ function removeFromCart(id) {
 function openCart() {
 
   cartDrawer.classList.add("active");
+
   overlay.classList.add("active");
 
   document.body.style.overflow = "hidden";
+
 }
 
 
 function closeCart() {
 
   cartDrawer.classList.remove("active");
+
   overlay.classList.remove("active");
 
   document.body.style.overflow = "";
+
 }
 
 
@@ -505,9 +561,23 @@ function openProduct(id) {
 
   const product = getProduct(id);
 
+
   if (!product) {
     return;
   }
+
+
+  const images =
+    product.images &&
+    product.images.length
+      ? product.images
+      : [];
+
+
+  const mainImage =
+    images.length
+      ? images[0]
+      : "";
 
 
   modalContent.innerHTML = `
@@ -515,8 +585,61 @@ function openProduct(id) {
     <div class="modal-product">
 
       <div class="modal-image">
-        ${productImage(product)}
+
+        ${
+          mainImage
+
+            ? `
+              <img
+                id="modalMainImage"
+                src="${mainImage}"
+                alt="${product.name}"
+              />
+            `
+
+            : `
+              <div class="image-placeholder">
+                Photo coming soon
+              </div>
+            `
+        }
+
       </div>
+
+
+      ${
+        images.length > 1
+
+          ? `
+            <div class="modal-gallery">
+
+              ${images.map((image, index) => {
+
+                return `
+                  <button
+                    class="modal-thumbnail ${
+                      index === 0 ? "active" : ""
+                    }"
+                    data-image="${image}"
+                    type="button"
+                  >
+
+                    <img
+                      src="${image}"
+                      alt="${product.name} photo ${index + 1}"
+                    />
+
+                  </button>
+                `;
+
+              }).join("")}
+
+            </div>
+          `
+
+          : ""
+      }
+
 
       <div class="modal-info">
 
@@ -524,43 +647,60 @@ function openProduct(id) {
           ${product.category}
         </p>
 
+
         <h2>
           ${product.name}
         </h2>
+
 
         <p class="modal-description">
           ${product.description}
         </p>
 
+
         <div class="modal-specs">
 
           <div class="modal-spec">
+
             <span>SIZE</span>
-            <span>${product.size}</span>
+
+            <span>
+              ${product.size}
+            </span>
+
           </div>
 
+
           <div class="modal-spec">
+
             <span>CONDITION</span>
-            <span>${product.condition}</span>
+
+            <span>
+              ${product.condition}
+            </span>
+
           </div>
 
-          <div class="modal-spec">
-            <span>ERA</span>
-            <span>${product.year}</span>
-          </div>
 
           <div class="modal-spec">
+
             <span>COLOR</span>
-            <span>${product.color}</span>
+
+            <span>
+              ${product.color}
+            </span>
+
           </div>
 
         </div>
+
 
         <div class="modal-purchase">
 
           <div class="modal-price">
             ${formatPrice(product.price)}
           </div>
+
 
           <button
             class="modal-add"
@@ -574,18 +714,68 @@ function openProduct(id) {
       </div>
 
     </div>
+
   `;
 
 
   productModal.showModal();
+
 }
+
+
+/* =========================================
+   MODAL IMAGE SWITCHING
+========================================= */
+
+modalContent.addEventListener("click", event => {
+
+  const thumbnail =
+    event.target.closest(".modal-thumbnail");
+
+
+  if (!thumbnail) {
+    return;
+  }
+
+
+  const image =
+    thumbnail.dataset.image;
+
+
+  const mainImage =
+    document.getElementById("modalMainImage");
+
+
+  if (!mainImage) {
+    return;
+  }
+
+
+  mainImage.src = image;
+
+
+  modalContent
+    .querySelectorAll(".modal-thumbnail")
+    .forEach(item => {
+
+      item.classList.remove("active");
+
+    });
+
+
+  thumbnail.classList.add("active");
+
+});
 
 
 function closeModal() {
 
   if (productModal.open) {
+
     productModal.close();
+
   }
+
 }
 
 
@@ -597,9 +787,12 @@ function checkout() {
 
   if (!cart.length) {
 
-    showToast("Your bag is empty.");
+    showToast(
+      "Your bag is empty."
+    );
 
     return;
+
   }
 
 
@@ -609,14 +802,17 @@ function checkout() {
 
 
   const total = selectedProducts.reduce(
-    (sum, product) => sum + product.price,
+    (sum, product) =>
+      sum + product.price,
     0
   );
 
 
   const productList = selectedProducts
     .map(product => {
+
       return `• ${product.name} — ${formatPrice(product.price)}`;
+
     })
     .join("\n");
 
@@ -643,26 +839,39 @@ Thank you!
 
   navigator.clipboard
     .writeText(message)
+
     .then(() => {
 
       showToast(
         "Order copied. Paste it into Messenger to send your request."
       );
 
+
       setTimeout(() => {
-        window.open(CONTACT.messenger, "_blank");
+
+        window.open(
+          CONTACT.messenger,
+          "_blank"
+        );
+
       }, 1000);
 
     })
+
     .catch(() => {
 
-      window.open(CONTACT.messenger, "_blank");
+      window.open(
+        CONTACT.messenger,
+        "_blank"
+      );
+
 
       showToast(
         "Messenger opened. Please copy your order from the bag."
       );
 
     });
+
 }
 
 
@@ -675,48 +884,81 @@ Thank you!
   Product click
 */
 
-productGrid.addEventListener("click", event => {
+productGrid.addEventListener(
+  "click",
+  event => {
 
-  const card = event.target.closest(".product-card");
+    const card =
+      event.target.closest(
+        ".product-card"
+      );
 
-  if (!card) {
-    return;
+
+    if (!card) {
+      return;
+    }
+
+
+    openProduct(
+      card.dataset.productId
+    );
+
   }
-
-  openProduct(card.dataset.productId);
-});
+);
 
 
 /*
   Modal add button
 */
 
-modalContent.addEventListener("click", event => {
+modalContent.addEventListener(
+  "click",
+  event => {
 
-  const button = event.target.closest("[data-add-id]");
+    const button =
+      event.target.closest(
+        "[data-add-id]"
+      );
 
-  if (!button) {
-    return;
+
+    if (!button) {
+      return;
+    }
+
+
+    addToCart(
+      button.dataset.addId
+    );
+
   }
-
-  addToCart(button.dataset.addId);
-});
+);
 
 
 /*
   Cart remove
 */
 
-cartItems.addEventListener("click", event => {
+cartItems.addEventListener(
+  "click",
+  event => {
 
-  const button = event.target.closest("[data-remove-id]");
+    const button =
+      event.target.closest(
+        "[data-remove-id]"
+      );
 
-  if (!button) {
-    return;
+
+    if (!button) {
+      return;
+    }
+
+
+    removeFromCart(
+      button.dataset.removeId
+    );
+
   }
-
-  removeFromCart(button.dataset.removeId);
-});
+);
 
 
 /*
@@ -725,7 +967,10 @@ cartItems.addEventListener("click", event => {
 
 document
   .getElementById("openCart")
-  .addEventListener("click", openCart);
+  .addEventListener(
+    "click",
+    openCart
+  );
 
 
 /*
@@ -734,14 +979,20 @@ document
 
 document
   .getElementById("closeCart")
-  .addEventListener("click", closeCart);
+  .addEventListener(
+    "click",
+    closeCart
+  );
 
 
 /*
   Overlay closes cart
 */
 
-overlay.addEventListener("click", closeCart);
+overlay.addEventListener(
+  "click",
+  closeCart
+);
 
 
 /*
@@ -750,7 +1001,10 @@ overlay.addEventListener("click", closeCart);
 
 document
   .getElementById("closeModal")
-  .addEventListener("click", closeModal);
+  .addEventListener(
+    "click",
+    closeModal
+  );
 
 
 /*
@@ -759,37 +1013,57 @@ document
 
 document
   .getElementById("sortSelect")
-  .addEventListener("change", event => {
+  .addEventListener(
+    "change",
+    event => {
 
-    activeSort = event.target.value;
+      activeSort =
+        event.target.value;
 
-    renderProducts();
-  });
+      renderProducts();
+
+    }
+  );
 
 
 /*
   Filters
 */
 
-document.querySelectorAll(".filter").forEach(button => {
+document
+  .querySelectorAll(".filter")
+  .forEach(button => {
 
-  button.addEventListener("click", () => {
+    button.addEventListener(
+      "click",
+      () => {
 
-    document
-      .querySelectorAll(".filter")
-      .forEach(item => {
-        item.classList.remove("active");
-      });
+        document
+          .querySelectorAll(".filter")
+          .forEach(item => {
+
+            item.classList.remove(
+              "active"
+            );
+
+          });
 
 
-    button.classList.add("active");
+        button.classList.add(
+          "active"
+        );
 
-    activeFilter = button.dataset.filter;
 
-    renderProducts();
+        activeFilter =
+          button.dataset.filter;
+
+
+        renderProducts();
+
+      }
+    );
+
   });
-
-});
 
 
 /*
@@ -798,28 +1072,37 @@ document.querySelectorAll(".filter").forEach(button => {
 
 document
   .getElementById("checkoutButton")
-  .addEventListener("click", checkout);
+  .addEventListener(
+    "click",
+    checkout
+  );
 
 
 /*
   Escape key
 */
 
-document.addEventListener("keydown", event => {
+document.addEventListener(
+  "keydown",
+  event => {
 
-  if (event.key !== "Escape") {
-    return;
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    closeCart();
+
   }
-
-  closeCart();
-});
+);
 
 
 /* =========================================
    FOOTER YEAR
 ========================================= */
 
-document.getElementById("year").textContent =
+document.getElementById(
+  "year"
+).textContent =
   new Date().getFullYear();
 
 
