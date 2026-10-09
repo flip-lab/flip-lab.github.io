@@ -23,7 +23,7 @@ const products = [
   {
     id: 1,
     name: "J-001",
-    category: "windbreaker",
+    category: "Light Zip-Up Jacket"
     price: 1500,
     size: "Medium",
     condition: "Excellent",
