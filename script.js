@@ -552,174 +552,229 @@ function closeCart() {
 
 }
 
-
-/* =========================================
+/* =========================
    PRODUCT MODAL
-========================================= */
+========================= */
 
-function openProduct(id) {
+.product-modal {
+  width: min(900px, calc(100% - 30px));
+  max-height: 90vh;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
 
-  const product = getProduct(id);
+.product-modal::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
 
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  z-index: 5;
+}
 
-  if (!product) {
-    return;
+.modal-product {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  max-height: 90vh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* LEFT COLUMN: MAIN PHOTO + THUMBNAILS */
+
+.modal-image {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+}
+
+.modal-image #modalMainImage {
+  display: block;
+  width: 100%;
+  height: min(62vh, 520px);
+  min-height: 0;
+  flex-shrink: 1;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Placeholder when no product photo exists */
+
+.modal-image > .image-placeholder {
+  min-height: 300px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* THUMBNAIL GALLERY */
+
+.modal-gallery {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+  padding: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: var(--card);
+}
+
+.modal-thumbnail {
+  flex: 0 0 72px;
+  width: 72px;
+  height: 82px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  cursor: pointer;
+}
+
+.modal-thumbnail.active {
+  border: 2px solid var(--accent);
+}
+
+.modal-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* RIGHT COLUMN: PRODUCT DETAILS */
+
+.modal-info {
+  min-width: 0;
+  min-height: 0;
+  padding: 60px 35px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.modal-info h2 {
+  margin: 15px 0;
+  font-size: clamp(32px, 5vw, 55px);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  overflow-wrap: anywhere;
+}
+
+.modal-description {
+  margin: 15px 0 30px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.modal-specs {
+  border-top: 1px solid var(--line);
+  margin-bottom: 30px;
+}
+
+.modal-spec {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+}
+
+/* PRICE + ADD TO BAG */
+
+.modal-purchase {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.modal-price {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.modal-add {
+  flex: 1;
+  border: 0;
+  padding: 15px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+  .product-modal {
+    width: calc(100% - 20px);
+    max-height: 90vh;
+    overflow-y: auto;
   }
 
+  .modal-product {
+    grid-template-columns: minmax(0, 1fr);
+    max-height: none;
+    overflow: visible;
+  }
 
-  const images =
-    product.images &&
-    product.images.length
-      ? product.images
-      : [];
+  .modal-image {
+    min-height: 0;
+  }
 
+  .modal-image #modalMainImage {
+    width: 100%;
+    height: 42vh;
+    min-height: 220px;
+    max-height: 380px;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
 
-  const mainImage =
-    images.length
-      ? images[0]
-      : "";
+  .modal-image > .image-placeholder {
+    min-height: 220px;
+  }
 
+  .modal-gallery {
+    padding: 10px;
+  }
 
-  modalContent.innerHTML = `
+  .modal-info {
+    padding: 30px 24px;
+    overflow: visible;
+  }
 
-    <div class="modal-product">
+  .modal-info h2 {
+    font-size: clamp(32px, 9vw, 45px);
+  }
 
-      <div class="modal-image">
+  .modal-description {
+    margin-bottom: 22px;
+  }
 
-        ${
-          mainImage
-
-            ? `
-              <img
-                id="modalMainImage"
-                src="${mainImage}"
-                alt="${product.name}"
-              />
-            `
-
-            : `
-              <div class="image-placeholder">
-                Photo coming soon
-              </div>
-            `
-        }
-
-      </div>
-
-
-      ${
-        images.length > 1
-
-          ? `
-            <div class="modal-gallery">
-
-              ${images.map((image, index) => {
-
-                return `
-                  <button
-                    class="modal-thumbnail ${
-                      index === 0 ? "active" : ""
-                    }"
-                    data-image="${image}"
-                    type="button"
-                  >
-
-                    <img
-                      src="${image}"
-                      alt="${product.name} photo ${index + 1}"
-                    />
-
-                  </button>
-                `;
-
-              }).join("")}
-
-            </div>
-          `
-
-          : ""
-      }
-
-
-      <div class="modal-info">
-
-        <p class="eyebrow">
-          ${product.category}
-        </p>
-
-
-        <h2>
-          ${product.name}
-        </h2>
-
-
-        <p class="modal-description">
-          ${product.description}
-        </p>
-
-
-        <div class="modal-specs">
-
-          <div class="modal-spec">
-
-            <span>SIZE</span>
-
-            <span>
-              ${product.size}
-            </span>
-
-          </div>
-
-
-          <div class="modal-spec">
-
-            <span>CONDITION</span>
-
-            <span>
-              ${product.condition}
-            </span>
-
-          </div>
-
-
-          <div class="modal-spec">
-
-            <span>COLOR</span>
-
-            <span>
-              ${product.color}
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <div class="modal-purchase">
-
-          <div class="modal-price">
-            ${formatPrice(product.price)}
-          </div>
-
-
-          <button
-            class="modal-add"
-            data-add-id="${product.id}"
-          >
-            Add to Bag
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  `;
-
-
-  productModal.showModal();
-
+  .modal-specs {
+    margin-bottom: 22px;
+  }
 }
 
 
