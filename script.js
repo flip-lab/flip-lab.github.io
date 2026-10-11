@@ -1,6 +1,7 @@
 
 /* =========================================
    flip-lab — Jacket flipping storefront
+   Inventory source: Google Sheets API
 ========================================= */
 
 /* CONTACT SETTINGS */
@@ -10,130 +11,20 @@ const CONTACT = {
   whatsapp: ""
 };
 
-/* PRODUCT DATA */
+/* GOOGLE SHEETS API */
 
-const products = [
-  {
-    id: 1,
-    name: "J-001",
-    category: "Light Zip-Up Jacket",
-    price: 1500,
-    size: "Medium",
-    condition: "Excellent",
-    color: "White",
-    description:
-      "A breezy, packable zip-up jacket with a crisp white finish and lightweight windbreaker construction.",
-    images: [
-      "j-001.front.jpg",
-      "j-001.back.jpg",
-      "j-001.macro.jpg",
-      "j-001.measures.png"
-    ],
-    featured: true,
-    added: "2026-10-09",
-    available: true
-  },
-  {
-    id: 2,
-    name: "Classic Blue Denim",
-    category: "denim",
-    price: 1650,
-    size: "Medium",
-    condition: "Excellent",
-    color: "Indigo",
-    description:
-      "Classic denim construction with a clean silhouette and subtle signs of wear.",
-    images: [],
-    featured: true,
-    added: "2026-09-03",
-    available: true
-  },
-  {
-    id: 3,
-    name: "Black Flight Bomber",
-    category: "bomber",
-    price: 1850,
-    size: "Large",
-    condition: "Excellent",
-    color: "Black",
-    description:
-      "Minimal black bomber with a compact silhouette and lightweight flight-jacket feel.",
-    images: [],
-    featured: true,
-    added: "2026-09-05",
-    available: true
-  },
-  {
-    id: 4,
-    name: "Nylon Trail Shell",
-    category: "windbreaker",
-    price: 1250,
-    size: "Medium",
-    condition: "Very Good",
-    color: "Stone",
-    description:
-      "Lightweight nylon shell with a practical outdoor character and relaxed fit.",
-    images: [],
-    featured: false,
-    added: "2026-08-25",
-    available: true
-  },
-  {
-    id: 5,
-    name: "Heavy Canvas Chore Coat",
-    category: "workwear",
-    price: 1950,
-    size: "XL",
-    condition: "Good",
-    color: "Natural",
-    description:
-      "Heavy canvas construction with visible character from years of use.",
-    images: [],
-    featured: false,
-    added: "2026-08-18",
-    available: true
-  },
-  {
-    id: 6,
-    name: "Washed Black Trucker",
-    category: "denim",
-    price: 1550,
-    size: "Medium",
-    condition: "Good",
-    color: "Washed Black",
-    description:
-      "Classic trucker shape with a naturally faded black denim finish.",
-    images: [],
-    featured: false,
-    added: "2026-08-12",
-    available: true
-  }
-];
+const INVENTORY_API =
+  "https://script.google.com/macros/s/AKfycbz-yq0NLlbD6ywh2fq_0cFKKEStHEztLnexivJIhS-38Ob-3nmcGE8bqDiH0EnlzIZH/exec";
+
+/* PRODUCT DATA — LOADED FROM GOOGLE SHEETS */
+
+let products = [];
 
 /* STATE */
 
 let activeFilter = "all";
 let activeSort = "featured";
-
 let cart = [];
-
-try {
-  const savedCart = JSON.parse(
-    localStorage.getItem("flipCart") || "[]"
-  );
-
-  if (Array.isArray(savedCart)) {
-    cart = savedCart
-      .map(Number)
-      .filter(id =>
-        products.some(product =>
-          product.id === id && product.available
-        )
-      );
-  }
-} catch (error) {
-  cart = [];
-}
 
 /* ELEMENTS */
 
@@ -149,6 +40,16 @@ const toast = document.getElementById("toast");
 
 /* HELPERS */
 
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
 function formatPrice(price) {
   return new Intl.NumberFormat("en-PH", {
     style: "currency",
@@ -159,7 +60,7 @@ function formatPrice(price) {
 
 function getProduct(id) {
   return products.find(
-    product => product.id === Number(id)
+    product => product.id === String(id)
   );
 }
 
@@ -176,20 +77,120 @@ function showToast(message) {
   }, 2200);
 }
 
+/* LOAD AND NORMALIZE INVENTORY */
+
+function normalizeProduct(item) {
+  const images = [
+    item.image_front,
+    item.image_back,
+    item.image_detail,
+    item.image_measurements
+  ]
+    .map(value => String(value ?? "").trim())
+    .filter(Boolean);
+
+  const status = String(item.status ?? "")
+    .trim()
+    .toLowerCase();
+
+  return {
+    id: String(item.id ?? "").trim(),
+    name: String(item.name ?? "").trim(),
+    price: Number(item.price),
+    category: String(item.category ?? "").trim(),
+    size: String(item.size ?? "").trim(),
+    condition: String(item.condition ?? "").trim(),
+    color: String(item.color ?? "").trim(),
+    description: String(item.description ?? "").trim(),
+    images,
+    featured:
+      item.featured === true ||
+      String(item.featured).toLowerCase() === "true",
+    added: item.added
+      ? String(item.added).slice(0, 10)
+      : "",
+    available: status === "available"
+  };
+}
+
+async function loadInventory() {
+  productGrid.innerHTML = `
+    <div class="empty-state">LOADING INVENTORY...</div>
+  `;
+
+  try {
+    const response = await fetch(INVENTORY_API);
+
+    if (!response.ok) {
+      throw new Error("Inventory request failed.");
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error(
+        data.error || "Unexpected inventory response."
+      );
+    }
+
+    products = data
+      .map(normalizeProduct)
+      .filter(product =>
+        product.id &&
+        product.name &&
+        Number.isFinite(product.price) &&
+        product.price >= 0
+      );
+
+    /* Remove unavailable products from the active cart.
+       Keep only valid string IDs from the new inventory. */
+
+    try {
+      const savedCart = JSON.parse(
+        localStorage.getItem("flipCart") || "[]"
+      );
+
+      cart = Array.isArray(savedCart)
+        ? [...new Set(
+            savedCart
+              .filter(id => typeof id === "string")
+              .filter(id => {
+                const product = getProduct(id);
+                return product && product.available;
+              })
+          )]
+        : [];
+    } catch {
+      cart = [];
+    }
+
+    saveCart();
+    renderProducts();
+    updateCart();
+
+  } catch (error) {
+    console.error("flip-lab inventory error:", error);
+
+    productGrid.innerHTML = `
+      <div class="empty-state">
+        INVENTORY COULD NOT BE LOADED.
+        PLEASE REFRESH AND TRY AGAIN.
+      </div>
+    `;
+  }
+}
+
 /* PRODUCT IMAGE */
 
 function productImage(product, className = "") {
-  const image =
-    product.images && product.images.length
-      ? product.images[0]
-      : "";
+  const image = product.images[0];
 
   if (image) {
     return `
       <img
-        src="${image}"
-        alt="${product.name}"
-        class="${className}"
+        src="${escapeHTML(image)}"
+        alt="${escapeHTML(product.name)}"
+        class="${escapeHTML(className)}"
         loading="lazy"
       />
     `;
@@ -207,9 +208,11 @@ function productImage(product, className = "") {
 function getVisibleProducts() {
   let visible = products.filter(product => {
     if (!product.available) return false;
+
     if (activeFilter === "all") return true;
 
-    return product.category === activeFilter;
+    return product.category.toLowerCase() ===
+      activeFilter.toLowerCase();
   });
 
   if (activeSort === "low") {
@@ -222,7 +225,8 @@ function getVisibleProducts() {
 
   if (activeSort === "newest") {
     visible.sort(
-      (a, b) => new Date(b.added) - new Date(a.added)
+      (a, b) => new Date(b.added || 0) -
+                new Date(a.added || 0)
     );
   }
 
@@ -248,7 +252,10 @@ function renderProducts() {
   }
 
   productGrid.innerHTML = visible.map(product => `
-    <article class="product-card" data-product-id="${product.id}">
+    <article
+      class="product-card"
+      data-product-id="${escapeHTML(product.id)}"
+    >
       <div class="product-image">
         ${productImage(product)}
 
@@ -261,10 +268,14 @@ function renderProducts() {
 
       <div class="product-info">
         <div>
-          <div class="product-name">${product.name}</div>
+          <div class="product-name">
+            ${escapeHTML(product.name)}
+          </div>
 
           <div class="product-meta">
-            ${product.category} · ${product.size} · ${product.condition}
+            ${escapeHTML(product.category)} ·
+            ${escapeHTML(product.size)} ·
+            ${escapeHTML(product.condition)}
           </div>
         </div>
 
@@ -283,18 +294,15 @@ function openProduct(id) {
 
   if (!product || !product.available) return;
 
-  const images = Array.isArray(product.images)
-    ? product.images
-    : [];
-
-  const mainImage = images.length ? images[0] : "";
+  const images = product.images;
+  const mainImage = images[0] || "";
 
   const imageMarkup = mainImage
     ? `
       <img
         id="modalMainImage"
-        src="${mainImage}"
-        alt="${product.name}"
+        src="${escapeHTML(mainImage)}"
+        alt="${escapeHTML(product.name)}"
       />
     `
     : `
@@ -308,15 +316,17 @@ function openProduct(id) {
       <div class="modal-gallery">
         ${images.map((image, index) => `
           <button
-            class="modal-thumbnail ${index === 0 ? "active" : ""}"
+            class="modal-thumbnail ${
+              index === 0 ? "active" : ""
+            }"
             type="button"
-            data-image="${image}"
+            data-image="${escapeHTML(image)}"
             aria-label="View photo ${index + 1}"
             aria-pressed="${index === 0}"
           >
             <img
-              src="${image}"
-              alt="${product.name} photo ${index + 1}"
+              src="${escapeHTML(image)}"
+              alt="${escapeHTML(product.name)} photo ${index + 1}"
               loading="lazy"
             />
           </button>
@@ -339,30 +349,30 @@ function openProduct(id) {
           CURATED · INSPECTED · CLEANED
         </div>
 
-        <h2>${product.name}</h2>
+        <h2>${escapeHTML(product.name)}</h2>
 
         <div class="modal-category">
-          ${product.category}
+          ${escapeHTML(product.category)}
         </div>
 
         <p class="modal-description">
-          ${product.description}
+          ${escapeHTML(product.description)}
         </p>
 
         <div class="modal-specs">
           <div class="modal-spec">
             <span>SIZE</span>
-            <span>${product.size}</span>
+            <span>${escapeHTML(product.size)}</span>
           </div>
 
           <div class="modal-spec">
             <span>CONDITION</span>
-            <span>${product.condition}</span>
+            <span>${escapeHTML(product.condition)}</span>
           </div>
 
           <div class="modal-spec">
             <span>COLOR</span>
-            <span>${product.color}</span>
+            <span>${escapeHTML(product.color)}</span>
           </div>
 
           <div class="modal-spec">
@@ -379,7 +389,7 @@ function openProduct(id) {
           <button
             class="modal-add"
             type="button"
-            data-add-id="${product.id}"
+            data-add-id="${escapeHTML(product.id)}"
           >
             Add to Bag
           </button>
@@ -392,13 +402,14 @@ function openProduct(id) {
   productModal.showModal();
 }
 
-/* MODAL IMAGE SWITCHING */
+/* MODAL IMAGE SWITCHING + ADD TO BAG */
 
 modalContent.addEventListener("click", event => {
   const thumbnail = event.target.closest(".modal-thumbnail");
 
   if (thumbnail) {
-    const mainImage = document.getElementById("modalMainImage");
+    const mainImage =
+      document.getElementById("modalMainImage");
 
     if (!mainImage) return;
 
@@ -447,7 +458,7 @@ function updateCart() {
   cartItems.innerHTML = cart.map(id => {
     const product = getProduct(id);
 
-    if (!product) return "";
+    if (!product || !product.available) return "";
 
     total += product.price;
 
@@ -458,14 +469,17 @@ function updateCart() {
         </div>
 
         <div class="cart-item-info">
-          <h3>${product.name}</h3>
-          <p>${product.size} · ${formatPrice(product.price)}</p>
+          <h3>${escapeHTML(product.name)}</h3>
+          <p>
+            ${escapeHTML(product.size)} ·
+            ${formatPrice(product.price)}
+          </p>
         </div>
 
         <button
           class="remove-item"
           type="button"
-          data-remove-id="${product.id}"
+          data-remove-id="${escapeHTML(product.id)}"
         >
           Remove
         </button>
@@ -503,7 +517,7 @@ function addToCart(id) {
 
 function removeFromCart(id) {
   cart = cart.filter(
-    productId => productId !== Number(id)
+    productId => productId !== String(id)
   );
 
   saveCart();
@@ -536,6 +550,11 @@ function checkout() {
     .map(id => getProduct(id))
     .filter(product => product && product.available);
 
+  if (!selectedProducts.length) {
+    showToast("No available jackets in your bag.");
+    return;
+  }
+
   const total = selectedProducts.reduce(
     (sum, product) => sum + product.price,
     0
@@ -543,7 +562,9 @@ function checkout() {
 
   const productList = selectedProducts
     .map(product =>
-      `• ${product.name} — ${formatPrice(product.price)}`
+      `• ${product.name} (${product.id}) — ${
+        formatPrice(product.price)
+      }`
     )
     .join("\n");
 
@@ -575,7 +596,7 @@ Thank you!
       window.open(CONTACT.messenger, "_blank");
 
       showToast(
-        "Messenger opened. Please copy your order from the bag."
+        "Messenger opened. Please prepare your order message."
       );
     });
 }
@@ -667,7 +688,6 @@ document.addEventListener("keydown", event => {
 document.getElementById("year").textContent =
   new Date().getFullYear();
 
-/* INITIAL RENDER */
+/* INITIALIZE */
 
-renderProducts();
-updateCart();
+loadInventory();
